@@ -72,27 +72,27 @@ const windowStyles = {
   booking: {
     width: "340px",
     height: "calc(100% - 40px)",
-    statusBarStyle: "default",
+    statusBarStyle: "default" as const,
   },
   schedule: {
     width: "340px",
     height: "calc(100% - 40px)",
-    statusBarStyle: "alternate",
+    statusBarStyle: "alternate" as const,
   },
   prices: {
     width: "340px",
     height: "calc(100% - 40px)",
-    statusBarStyle: "default",
+    statusBarStyle: "default" as const,
   },
   "my-bookings": {
     width: "340px",
     height: "calc(100% - 40px)",
-    statusBarStyle: "alternate",
+    statusBarStyle: "alternate" as const,
   },
   admin: {
     width: "340px",
     height: "calc(100% - 40px)",
-    statusBarStyle: "default",
+    statusBarStyle: "default" as const,
   },
 };
 
