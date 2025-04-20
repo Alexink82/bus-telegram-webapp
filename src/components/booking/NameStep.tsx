@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useTelegram } from '../../hooks/useTelegram';
 
 interface NameStepProps {
@@ -9,14 +9,16 @@ interface NameStepProps {
 }
 
 const NameStep: React.FC<NameStepProps> = ({ value, onChange, onNext }) => {
-  const { user, isInTelegram, showAlert } = useTelegram();
+  const { user, isInTelegram, showAlert, HapticFeedback } = useTelegram();
   const [error, setError] = useState('');
+  const initializedRef = useRef(false);
 
-  // Если пользователь в Telegram, автоматически заполняем имя
+  // Если пользователь в Telegram, автоматически заполняем имя только один раз
   useEffect(() => {
-    if (isInTelegram && user && !value) {
+    if (isInTelegram && user && !value && !initializedRef.current) {
       const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ');
       onChange(fullName);
+      initializedRef.current = true;
     }
   }, [isInTelegram, user, value, onChange]);
 
@@ -38,8 +40,12 @@ const NameStep: React.FC<NameStepProps> = ({ value, onChange, onNext }) => {
     e.preventDefault();
 
     if (!error && value.trim().length >= 3) {
+      // Добавляем тактильную обратную связь при успешном заполнении
+      HapticFeedback?.impactOccurred('medium');
       onNext();
     } else {
+      // Добавляем тактильную обратную связь при ошибке
+      HapticFeedback?.notificationOccurred('error');
       showAlert('Пожалуйста, введите корректное имя для продолжения');
     }
   };
@@ -63,7 +69,7 @@ const NameStep: React.FC<NameStepProps> = ({ value, onChange, onNext }) => {
                   className="w-10 h-10 rounded-full mr-3"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-[#ff7a5c] dark:bg-[#ff9580] flex items-center justify-center text-white mr-3">
+                <div className="w-10 h-10 rounded-full bg-[var(--app-primary)] flex items-center justify-center text-white mr-3">
                   {user.first_name.charAt(0).toUpperCase()}
                 </div>
               )}
@@ -89,7 +95,7 @@ const NameStep: React.FC<NameStepProps> = ({ value, onChange, onNext }) => {
               id="passengerName"
               value={value}
               onChange={handleChange}
-              className={`w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ff7a5c] dark:bg-gray-700 dark:text-white ${
+              className={`w-full px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--app-primary)] dark:bg-gray-700 dark:text-white ${
                 error ? 'border-red-500 dark:border-red-400' : 'border border-gray-300 dark:border-gray-600'
               }`}
               placeholder="Иван Иванов"
@@ -114,10 +120,10 @@ const NameStep: React.FC<NameStepProps> = ({ value, onChange, onNext }) => {
           type="button"
           onClick={handleSubmit}
           disabled={!!error || value.trim().length < 3}
-          className={`w-full py-3 rounded-md font-medium text-white ${
+          className={`w-full py-3 rounded-md font-medium text-white tg-ripple ${
             error || value.trim().length < 3
               ? 'bg-gray-300 dark:bg-gray-700 dark:text-gray-400 cursor-not-allowed'
-              : 'bg-[#ff7a5c] hover:bg-[#ff6347]'
+              : 'bg-[var(--app-primary)] hover:bg-[var(--app-primary-hover)]'
           }`}
         >
           Продолжить

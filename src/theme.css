@@ -1,23 +1,68 @@
 /* Базовые цвета для светлой и темной темы */
 
 :root {
+  /* Основные цвета Telegram */
   --tg-theme-bg-color: #ffffff;
   --tg-theme-text-color: #000000;
   --tg-theme-hint-color: #999999;
   --tg-theme-link-color: #2678b6;
-  --tg-theme-button-color: #3390ec;
+  --tg-theme-button-color: #ff7a5c;
   --tg-theme-button-text-color: #ffffff;
   --tg-theme-secondary-bg-color: #f3f3f3;
+
+  /* Дополнительные цвета для нашего приложения */
+  --app-primary: var(--tg-theme-button-color);
+  --app-primary-hover: #ff6347;
+  --app-primary-light: #fff3f1;
+  --app-primary-dark: #ff9580;
+  --app-primary-dark-hover: #ff8066;
+  --app-primary-dark-bg: #5c2d25;
+
+  /* Нейтральные цвета */
+  --app-gray-50: #f9fafb;
+  --app-gray-100: #f3f4f6;
+  --app-gray-200: #e5e7eb;
+  --app-gray-300: #d1d5db;
+  --app-gray-400: #9ca3af;
+  --app-gray-500: #6b7280;
+  --app-gray-600: #4b5563;
+  --app-gray-700: #374151;
+  --app-gray-800: #1f2937;
+  --app-gray-900: #111827;
+
+  /* Состояния */
+  --app-success: #10b981;
+  --app-warning: #f59e0b;
+  --app-error: #ef4444;
+  --app-info: #3b82f6;
 }
 
 .dark {
+  /* Основные цвета Telegram для темной темы */
   --tg-theme-bg-color: #212121;
   --tg-theme-text-color: #ffffff;
   --tg-theme-hint-color: #aaaaaa;
-  --tg-theme-link-color: #8cc2e8;
-  --tg-theme-button-color: #3390ec;
+  --tg-theme-link-color: #64b5f6;
+  --tg-theme-button-color: #ff9580;
   --tg-theme-button-text-color: #ffffff;
   --tg-theme-secondary-bg-color: #181818;
+
+  /* Дополнительные цвета для темной темы */
+  --app-primary-hover: #ff8066;
+  --app-primary-light: #5c2d25;
+  --app-primary-dark-bg: #5c2d25;
+
+  /* Нейтральные цвета для темной темы */
+  --app-gray-50: #18191a;
+  --app-gray-100: #242526;
+  --app-gray-200: #3a3b3c;
+  --app-gray-300: #4e4f50;
+  --app-gray-400: #6a6b6c;
+  --app-gray-500: #8a8b8c;
+  --app-gray-600: #a8a9aa;
+  --app-gray-700: #c6c7c8;
+  --app-gray-800: #e4e5e6;
+  --app-gray-900: #f6f7f8;
 }
 
 /* Применение цветов Telegram WebApp, если доступны */
@@ -39,16 +84,115 @@ html {
 /* Контейнер для прокрутки в окнах */
 .window-content {
   scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05);
+  scrollbar-color: var(--app-gray-400) var(--app-gray-100);
 }
 
 .dark .window-content {
-  scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
+  scrollbar-color: var(--app-gray-600) var(--app-gray-800);
 }
 
-/* Плавные переходы для изменения темы */
+/* Оптимизированные плавные переходы для изменения темы */
 * {
   transition-property: background-color, border-color, color, fill, stroke;
-  transition-duration: 0.3s;
+  transition-duration: 0.2s; /* Уменьшено с 0.3s для более быстрых переходов */
   transition-timing-function: ease;
+}
+
+/* Утилиты для Telegram-подобных эффектов */
+.tg-ripple {
+  position: relative;
+  overflow: hidden;
+  transform: translate3d(0, 0, 0);
+}
+
+.tg-ripple::after {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+  background-repeat: no-repeat;
+  background-position: 50%;
+  transform: scale(10, 10);
+  opacity: 0;
+  transition: transform 0.5s, opacity 0.5s;
+}
+
+.tg-ripple:active::after {
+  transform: scale(0, 0);
+  opacity: 0.3;
+  transition: 0s;
+}
+
+.dark .tg-ripple::after {
+  background-image: radial-gradient(circle, #000 10%, transparent 10.01%);
+}
+
+/* Стили для кнопок */
+.tg-button {
+  background-color: var(--tg-theme-button-color);
+  color: var(--tg-theme-button-text-color);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.tg-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Стили для индикатора активности сети */
+.network-status {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  transition: transform 0.3s ease;
+  z-index: 9999;
+}
+
+.network-status.online {
+  background-color: var(--app-success);
+  color: white;
+  transform: translateY(100%);
+}
+
+.network-status.offline {
+  background-color: var(--app-error);
+  color: white;
+  transform: translateY(0);
+}
+
+/* Haptic feedback visual indication */
+.haptic-feedback {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  background-color: rgba(255, 255, 255, 0.5);
+  animation: haptic-pulse 0.5s ease-out;
+  z-index: 9999;
+}
+
+@keyframes haptic-pulse {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.8;
+  }
+  100% {
+    width: 100px;
+    height: 100px;
+    opacity: 0;
+  }
 }

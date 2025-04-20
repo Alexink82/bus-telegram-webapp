@@ -24,6 +24,12 @@ interface UseTelegramReturn {
     notificationOccurred: (type: 'error' | 'success' | 'warning') => void;
     selectionChanged: () => void;
   } | null;
+  // Новые методы
+  getTelegramThemeColor: (colorName: string, defaultColor: string) => string;
+  scanQrCode: (callback: (text: string) => void) => void;
+  shareData: (text: string) => void;
+  themeParams: Record<string, string> | null;
+  setThemeCssVars: () => void;
 }
 
 export function useTelegram(): UseTelegramReturn {
@@ -35,6 +41,51 @@ export function useTelegram(): UseTelegramReturn {
   const [tg, setTg] = useState<TelegramWebApp | null>(null);
   const [initDataUnsafe, setInitDataUnsafe] = useState<TelegramInitData | null>(null);
   const [hapticFeedback, setHapticFeedback] = useState<UseTelegramReturn['HapticFeedback']>(null);
+  const [themeParams, setThemeParams] = useState<Record<string, string> | null>(null);
+
+  // Установка CSS переменных для темы Telegram
+  const setThemeCssVars = useCallback(() => {
+    const root = document.documentElement;
+
+    if (tg?.themeParams) {
+      root.style.setProperty('--tg-theme-bg-color', tg.themeParams.bg_color);
+      root.style.setProperty('--tg-theme-text-color', tg.themeParams.text_color);
+      root.style.setProperty('--tg-theme-hint-color', tg.themeParams.hint_color);
+      root.style.setProperty('--tg-theme-link-color', tg.themeParams.link_color);
+      root.style.setProperty('--tg-theme-button-color', tg.themeParams.button_color);
+      root.style.setProperty('--tg-theme-button-text-color', tg.themeParams.button_text_color);
+
+      // Сохраняем параметры темы
+      setThemeParams({
+        bg_color: tg.themeParams.bg_color,
+        text_color: tg.themeParams.text_color,
+        hint_color: tg.themeParams.hint_color,
+        link_color: tg.themeParams.link_color,
+        button_color: tg.themeParams.button_color,
+        button_text_color: tg.themeParams.button_text_color
+      });
+    } else {
+      // Fallback для разработки вне Telegram
+      const isDark = theme === 'dark';
+
+      root.style.setProperty('--tg-theme-bg-color', isDark ? '#212121' : '#ffffff');
+      root.style.setProperty('--tg-theme-text-color', isDark ? '#ffffff' : '#000000');
+      root.style.setProperty('--tg-theme-hint-color', isDark ? '#aaaaaa' : '#999999');
+      root.style.setProperty('--tg-theme-link-color', isDark ? '#64b5f6' : '#2678b6');
+      root.style.setProperty('--tg-theme-button-color', isDark ? '#ff9580' : '#ff7a5c');
+      root.style.setProperty('--tg-theme-button-text-color', '#ffffff');
+
+      // Сохраняем параметры темы
+      setThemeParams({
+        bg_color: isDark ? '#212121' : '#ffffff',
+        text_color: isDark ? '#ffffff' : '#000000',
+        hint_color: isDark ? '#aaaaaa' : '#999999',
+        link_color: isDark ? '#64b5f6' : '#2678b6',
+        button_color: isDark ? '#ff9580' : '#ff7a5c',
+        button_text_color: '#ffffff'
+      });
+    }
+  }, [tg, theme]);
 
   // Инициализация Telegram Web App
   useEffect(() => {
@@ -65,6 +116,9 @@ export function useTelegram(): UseTelegramReturn {
         });
       }
 
+      // Устанавливаем CSS переменные темы
+      setTimeout(() => setThemeCssVars(), 0);
+
       // Событие готовности
       webApp.ready();
       setReady(true);
@@ -72,6 +126,8 @@ export function useTelegram(): UseTelegramReturn {
       // Подписка на события изменения
       const onThemeChanged = () => {
         setTheme(webApp.colorScheme);
+        // Обновляем CSS переменные при изменении темы
+        setTimeout(() => setThemeCssVars(), 0);
       };
 
       const onViewportChanged = () => {
@@ -113,16 +169,74 @@ export function useTelegram(): UseTelegramReturn {
 
     // Установка темы из localStorage или prefers-color-scheme для разработки
     const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const prefersDark = window.matchMedia?.('(prefers-color-scheme: dark)').matches;
     setTheme(savedTheme === 'dark' || (!savedTheme && prefersDark) ? 'dark' : 'light');
-  }, []);
+
+    // Устанавливаем CSS переменные для fallback темы
+    setTimeout(() => setThemeCssVars(), 0);
+  }, [setThemeCssVars]);
 
   // Сохранение темы в localStorage для разработки вне Telegram
   useEffect(() => {
     if (!isInTelegram) {
       localStorage.setItem('theme', theme);
+      // Обновляем CSS переменные при изменении темы
+      setThemeCssVars();
     }
-  }, [theme, isInTelegram]);
+  }, [theme, isInTelegram, setThemeCssVars]);
+
+  // Получение цветов темы Telegram
+  const getTelegramThemeColor = useCallback((colorName: string, defaultColor: string): string => {
+    if (tg?.themeParams) {
+      switch (colorName) {
+        case 'primary': return tg.themeParams.button_color;
+        case 'text': return tg.themeParams.text_color;
+        case 'hint': return tg.themeParams.hint_color;
+        case 'link': return tg.themeParams.link_color;
+        case 'bg': return tg.themeParams.bg_color;
+        case 'button_text': return tg.themeParams.button_text_color;
+        default: return defaultColor;
+      }
+    }
+
+    // Fallback для разработки вне Telegram
+    switch (colorName) {
+      case 'primary': return theme === 'dark' ? '#ff9580' : '#ff7a5c';
+      case 'text': return theme === 'dark' ? '#ffffff' : '#000000';
+      case 'hint': return theme === 'dark' ? '#aaaaaa' : '#999999';
+      case 'link': return theme === 'dark' ? '#64b5f6' : '#2678b6';
+      case 'bg': return theme === 'dark' ? '#212121' : '#ffffff';
+      case 'button_text': return '#ffffff';
+      default: return defaultColor;
+    }
+  }, [tg, theme]);
+
+  // Сканирование QR-кода (с fallback для браузера)
+  const scanQrCode = useCallback((callback: (text: string) => void) => {
+    if (tg && 'showScanQrPopup' in tg) {
+      // @ts-ignore - тип для showScanQrPopup может отсутствовать в наших типах
+      tg.showScanQrPopup({ text: 'Отсканируйте QR-код' }, callback);
+    } else {
+      console.log('[ScanQrCode] Не доступно в браузере');
+      // Заглушка для браузера
+      setTimeout(() => callback('example-qr-code-12345'), 1000);
+    }
+  }, [tg]);
+
+  // Функция для шаринга данных
+  const shareData = useCallback((text: string) => {
+    if (tg) {
+      tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(text)}`);
+    } else if (navigator.share) {
+      navigator.share({
+        title: 'Информация о билете',
+        text: text,
+        url: window.location.href
+      }).catch(err => console.error('Error sharing:', err));
+    } else {
+      console.log('[ShareData]', text);
+    }
+  }, [tg]);
 
   // Методы для работы с Telegram WebApp
   const expand = useCallback(() => {
@@ -247,6 +361,12 @@ export function useTelegram(): UseTelegramReturn {
     showPopup,
     showAlert,
     showConfirm,
-    HapticFeedback: hapticFeedback
+    HapticFeedback: hapticFeedback,
+    // Новые методы
+    getTelegramThemeColor,
+    scanQrCode,
+    shareData,
+    themeParams,
+    setThemeCssVars
   };
 }

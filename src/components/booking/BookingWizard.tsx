@@ -17,12 +17,12 @@ interface BookingWizardProps {
 
 // Названия шагов для отображения в индикаторе прогресса
 const stepNames = [
-  'ФИО',
-  'Дата',
-  'Маршрут',
-  'Билеты',
-  'Телефон',
-  'Подтверждение'
+  { id: 'name', label: 'ФИО' },
+  { id: 'date', label: 'Дата' },
+  { id: 'route', label: 'Маршрут' },
+  { id: 'tickets', label: 'Билеты' },
+  { id: 'phone', label: 'Телефон' },
+  { id: 'confirm', label: 'Подтверждение' }
 ];
 
 // Тексты для кнопок Telegram на каждом шаге
@@ -126,9 +126,9 @@ const BookingWizard: React.FC<BookingWizardProps> = ({ onComplete }) => {
 
   // Варианты анимации для переходов между шагами
   const fadeVariants = {
-    initial: { opacity: 0, y: 10 },
+    initial: { opacity: 0, y: 5 }, // Уменьшено с 10px до 5px для более быстрого эффекта
     animate: { opacity: 1, y: 0 },
-    exit: { opacity: 0, y: -10 },
+    exit: { opacity: 0, y: -5 }, // Уменьшено с -10px до -5px для более быстрого эффекта
   };
 
   // Отображение текущего шага мастера
@@ -212,43 +212,43 @@ const BookingWizard: React.FC<BookingWizardProps> = ({ onComplete }) => {
           {/* Линия прогресса */}
           <div className="absolute left-0 top-1/2 transform -translate-y-1/2 h-0.5 bg-gray-200 dark:bg-gray-700 w-full" />
           <div
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 h-0.5 bg-[#ff7a5c] dark:bg-[#ff9580]"
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 h-0.5 bg-[var(--app-primary)] dark:bg-[var(--app-primary-dark)]"
             style={{ width: `${(currentStep / 5) * 100}%` }}
           />
 
           {/* Индикаторы шагов */}
           <div className="relative flex justify-between">
-            {stepNames.map((step, index) => (
+            {stepNames.map((step) => (
               <div
-                key={`step-${index}`}
+                key={step.id}
                 className="flex flex-col items-center cursor-pointer"
-                onClick={() => goToStep(index)}
+                onClick={() => goToStep(stepNames.findIndex(s => s.id === step.id))}
               >
                 <div
                   className={`flex items-center justify-center w-6 h-6 rounded-full ${
-                    index < currentStep
-                      ? 'bg-[#ff7a5c] dark:bg-[#ff9580] text-white'
-                      : index === currentStep
-                        ? 'border-2 border-[#ff7a5c] dark:border-[#ff9580] text-[#ff7a5c] dark:text-[#ff9580] bg-white dark:bg-gray-800'
+                    stepNames.findIndex(s => s.id === step.id) < currentStep
+                      ? 'bg-[var(--app-primary)] dark:bg-[var(--app-primary-dark)] text-white'
+                      : stepNames.findIndex(s => s.id === step.id) === currentStep
+                        ? 'border-2 border-[var(--app-primary)] dark:border-[var(--app-primary-dark)] text-[var(--app-primary)] dark:text-[var(--app-primary-dark)] bg-white dark:bg-gray-800'
                         : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500'
-                  } text-xs font-medium z-10`}
+                  } text-xs font-medium z-10 tg-ripple`}
                 >
-                  {index < currentStep ? (
+                  {stepNames.findIndex(s => s.id === step.id) < currentStep ? (
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                     </svg>
                   ) : (
-                    index + 1
+                    stepNames.findIndex(s => s.id === step.id) + 1
                   )}
                 </div>
                 <span
                   className={`text-[10px] mt-1 ${
-                    index <= currentStep
-                      ? 'text-[#ff7a5c] dark:text-[#ff9580]'
+                    stepNames.findIndex(s => s.id === step.id) <= currentStep
+                      ? 'text-[var(--app-primary)] dark:text-[var(--app-primary-dark)]'
                       : 'text-gray-400 dark:text-gray-500'
                   }`}
                 >
-                  {step}
+                  {step.label}
                 </span>
               </div>
             ))}
@@ -272,7 +272,7 @@ const BookingWizard: React.FC<BookingWizardProps> = ({ onComplete }) => {
             animate="animate"
             exit="exit"
             variants={fadeVariants}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.2 }} // Уменьшено с 0.3 до 0.2 для более быстрых переходов
             className="h-full"
           >
             {renderStep()}
