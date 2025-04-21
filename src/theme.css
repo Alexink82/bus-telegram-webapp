@@ -1,6 +1,9 @@
 /* Базовые цвета для светлой и темной темы */
 
 :root {
+  --telegram-blue: #2AABEE;
+  --background: #ffffff;
+  --text: #000000;
   --tg-theme-bg-color: #ffffff;
   --tg-theme-text-color: #000000;
   --tg-theme-hint-color: #999999;
@@ -11,6 +14,9 @@
 }
 
 .dark {
+  --telegram-blue: #2AABEE;
+  --background: #222222;
+  --text: #ffffff;
   --tg-theme-bg-color: #212121;
   --tg-theme-text-color: #ffffff;
   --tg-theme-hint-color: #aaaaaa;
