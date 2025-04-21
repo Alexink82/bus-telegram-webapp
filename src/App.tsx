@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useTelegram } from "./hooks/useTelegram";
 
@@ -11,7 +11,6 @@ import ThemeToggle from "./components/ui/ThemeToggle";
 import BookingWizard from "./components/booking/BookingWizard";
 import SchedulePage from "./components/schedule/SchedulePage";
 import PricesPage from "./components/prices/PricesPage";
-import MyBookingsPage from "./components/myBookings/MyBookingsPage";
 import AdminPage from "./components/admin/AdminPage";
 
 // Иконки для меню
@@ -98,6 +97,7 @@ const windowStyles = {
 
 export default function App() {
   const { theme, user } = useTelegram();
+
   const [activeMenu, setActiveMenu] = useState<string>('booking');
   const [openWindows, setOpenWindows] = useState<string[]>(['booking']);
   const [activeWindow, setActiveWindow] = useState<string>('booking');
@@ -152,8 +152,6 @@ export default function App() {
         return <SchedulePage />;
       case 'prices':
         return <PricesPage />;
-      case 'my-bookings':
-        return <MyBookingsPage />;
       case 'admin':
         return <AdminPage />;
       default:
@@ -174,51 +172,17 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen flex overflow-hidden bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      {/* Боковое меню */}
-      <SideMenu
-        items={menuItems}
-        activeItem={activeMenu}
-        onItemClick={handleMenuClick}
-        isUserAdmin={isAdmin}
-      />
+      <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+          {/* Панель сверху */}
+          <div className="h-12 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4">
+              <div className="font-medium">Bat-tel-web</div>
+              <ThemeToggle />
+          </div>
 
-      {/* Основная область с окнами */}
-      <div className="flex-1 relative overflow-hidden">
-        {/* Панель сверху */}
-        <div className="h-12 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between px-4">
-          <div className="font-medium">Bat-tel-web</div>
-          <ThemeToggle />
-        </div>
-
-        {/* Контейнер для окон */}
-        <div className="p-4 h-[calc(100%-3rem)] relative">
-          <AnimatePresence>
-            {openWindows.map((windowId, index) => {
-              const windowStyle = windowStyles[windowId as keyof typeof windowStyles];
-              return (
-                <Window
-                  key={windowId}
-                  title={getWindowTitle(windowId)}
-                  icon={getWindowIcon(windowId)}
-                  isActive={activeWindow === windowId}
-                  setActive={() => setWindowActive(windowId)}
-                  onClose={() => handleCloseWindow(windowId)}
-                  zIndex={activeWindow === windowId ? 999 : openWindows.indexOf(windowId) + 1}
-                  initialX={20 + index * 15}
-                  initialY={20 + index * 15}
-                  width={windowStyle.width}
-                  height={windowStyle.height}
-                  statusBarStyle={windowStyle.statusBarStyle}
-                  className="rounded-2xl overflow-hidden"
-                >
-                  {getWindowContent(windowId)}
-                </Window>
-              );
-            })}
-          </AnimatePresence>
-        </div>
-      </div>
+          {/* Основной контент */}
+          <main className="flex-1 p-4">
+              <SchedulePage />
+          </main>
     </div>
   );
 }

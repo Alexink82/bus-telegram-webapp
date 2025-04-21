@@ -10,7 +10,9 @@ module.exports = {
         sm: 'calc(var(--radius) - 4px)'
       },
       colors: {
-        background: 'hsl(var(--background))',
+        'telegram-blue': 'var(--telegram-blue)',
+        'background': 'var(--background)',
+        'text': 'var(--text)',
         foreground: 'hsl(var(--foreground))',
         card: {
           DEFAULT: 'hsl(var(--card))',
@@ -42,7 +44,7 @@ module.exports = {
           foreground: 'hsl(var(--destructive-foreground))'
         },
         border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
+       input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
         chart: {
           '1': 'hsl(var(--chart-1))',

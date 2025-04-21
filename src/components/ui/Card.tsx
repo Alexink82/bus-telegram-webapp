@@ -7,12 +7,12 @@ interface CardProps extends PropsWithChildren {
 
 const Card: React.FC<CardProps> = ({ children, className }) => {
   return (
-    <div
-      className={`bg-card dark:bg-[#222222] text-foreground dark:text-[#ffffff] rounded-lg shadow-md p-4 ${className}`}
-    >
-      {children}
+    <div className={`
+      bg-card dark:bg-card 
+      text-foreground dark:text-foreground 
+      rounded-lg shadow-md border border-border p-4 ${className}`}>
+        {children}
     </div>
   );
 };
-
 export default Card;
